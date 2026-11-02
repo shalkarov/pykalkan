@@ -295,3 +295,69 @@ class LibHandle:
     def set_tsa_url(self, url: bytes):
         kc_url = ct.c_char_p(url)
         self.handle.KC_TSASetUrl(kc_url)
+
+    def sign_xml(self, xml: bytes, flags: t.Iterable[SignatureFlag]) -> bytes:
+        """
+        Подписывает XML-документ (XAdES/XMLDSIG).
+
+        :param xml: входной XML в байтах;
+        :param flags: список флагов подписи;
+        :return: bytes — подписанный XML.
+        """
+        flags = ct.c_int(sum([flag for flag in flags]))
+
+        in_xml = ct.c_char_p(xml)
+        in_xml_len = ct.c_int(len(xml))
+
+        out_len = len(xml) * 2 + 50000
+        out_xml = ct.create_string_buffer(out_len)
+        out_xml_len = ct.pointer(ct.c_int(out_len))
+
+        sign_node_id = ct.c_char_p("".encode())
+        parent_sign_node = ct.c_char_p("".encode())
+        parent_namespace = ct.c_char_p("".encode())
+
+        err_code = self.handle.SignXML(
+            self._alias,
+            flags,
+            in_xml,
+            in_xml_len,
+            out_xml,
+            out_xml_len,
+            sign_node_id,
+            parent_sign_node,
+            parent_namespace,
+        )
+        self.__handle_error(err_code, "SignXML")
+        return out_xml.value
+
+    def verify_xml(self, signed_xml: bytes, flags: t.Iterable[SignatureFlag]) -> dict[str, bytes]:
+        """
+        Верифицирует подписанный XML-документ.
+
+        :param signed_xml: подписанный XML в байтах;
+        :param flags: список флагов;
+        :return: dict с ключом 'Info'.
+        """
+        flags = ct.c_int(sum([flag for flag in flags]))
+
+        in_xml = ct.c_char_p(signed_xml)
+        in_xml_len = ct.c_int(len(signed_xml))
+
+        out_len = len(signed_xml) * 2 + 50000
+        out_xml = ct.create_string_buffer(out_len)
+        out_xml_len = ct.pointer(ct.c_int(out_len))
+
+        err_code = self.handle.VerifyXML(
+            self._alias,
+            flags,
+            in_xml,
+            in_xml_len,
+            out_xml,
+            out_xml_len,
+        )
+        result = {
+            "Info": out_xml.value,
+        }
+        self.__handle_error(err_code, "VerifyXML", result.get("Info"))
+        return result

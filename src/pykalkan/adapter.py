@@ -31,7 +31,7 @@ class Adapter(KalkanInterface):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._kc.kc_finalize()
-        self._instance = None
+        Adapter._instance = None
 
     def init(self):
         """Инициализация библиотеки.."""
@@ -187,5 +187,46 @@ class Adapter(KalkanInterface):
         """
         with self._lock:
             self._kc.set_tsa_url(url.encode())
+
+    def sign_xml(
+            self,
+            xml: str,
+            flags: t.Iterable[SignatureFlag] = (
+                    SignatureFlag.KC_SIGN_DRAFT,
+                    SignatureFlag.KC_IN_BASE64,
+                    SignatureFlag.KC_OUT_BASE64,
+                    SignatureFlag.KC_WITH_CERT,
+                    SignatureFlag.KC_WITH_TIMESTAMP,
+            ),
+    ) -> bytes:
+        """
+        Подписывает XML-документ (XAdES/XMLDSIG).
+
+        :param xml: str — XML-документ для подписи.
+        :param flags: флаги подписи.
+        :return: bytes — подписанный XML.
+        """
+        with self._lock:
+            return self._kc.sign_xml(xml.encode(), flags)
+
+    def verify_xml(
+            self,
+            signed_xml: str,
+            flags: t.Iterable[SignatureFlag] = (
+                    SignatureFlag.KC_SIGN_DRAFT,
+                    SignatureFlag.KC_IN_BASE64,
+                    SignatureFlag.KC_OUT_BASE64,
+                    SignatureFlag.KC_WITH_CERT,
+            ),
+    ) -> dict[str, bytes]:
+        """
+        Верифицирует подписанный XML-документ.
+
+        :param signed_xml: str — подписанный XML.
+        :param flags: флаги верификации.
+        :return: dict[str, bytes] — результат верификации с ключом 'Info'.
+        """
+        with self._lock:
+            return self._kc.verify_xml(signed_xml.encode(), flags)
 
 

@@ -52,3 +52,11 @@ class KalkanInterface(ABC):
     @abstractmethod
     def set_tsa_url(self, url: str):
         pass
+
+    @abstractmethod
+    def sign_xml(self, xml: str, flags: t.Iterable[SignatureFlag]) -> bytes:
+        pass
+
+    @abstractmethod
+    def verify_xml(self, signed_xml: str, flags: t.Iterable[SignatureFlag]) -> dict[str, bytes]:
+        pass
