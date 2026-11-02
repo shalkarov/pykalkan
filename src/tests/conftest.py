@@ -27,7 +27,7 @@ def make_mock_handle():
         ctypes.memmove(out, SIGNED_XML, len(SIGNED_XML))
         return 0
 
-    handle.KC_SignXML.side_effect = mock_sign_xml
+    handle.SignXML.side_effect = mock_sign_xml
 
     def mock_verify_data(alias, flags, data, data_len, sign, sign_len,
                          out_data, out_data_len, out_info, out_info_len,
@@ -42,7 +42,7 @@ def make_mock_handle():
         ctypes.memmove(out, VERIFY_INFO, len(VERIFY_INFO))
         return 0
 
-    handle.KC_VerifyXML.side_effect = mock_verify_xml
+    handle.VerifyXML.side_effect = mock_verify_xml
 
     def mock_export_cert(alias, flags, out, out_len):
         ctypes.memmove(out, CERT_BYTES, len(CERT_BYTES))

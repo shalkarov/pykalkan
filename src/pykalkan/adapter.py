@@ -224,7 +224,7 @@ class Adapter(KalkanInterface):
 
         :param signed_xml: str — подписанный XML.
         :param flags: флаги верификации.
-        :return: dict[str, bytes] — результат верификации с ключами 'Info' и 'Cert'.
+        :return: dict[str, bytes] — результат верификации с ключом 'Info'.
         """
         with self._lock:
             return self._kc.verify_xml(signed_xml.encode(), flags)

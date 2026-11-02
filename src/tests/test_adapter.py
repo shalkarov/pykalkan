@@ -78,7 +78,6 @@ def test_verify_xml_returns_dict(adapter):
     result = adapter.verify_xml(signed.decode())
     assert isinstance(result, dict)
     assert "Info" in result
-    assert "Cert" in result
 
 
 # ── Certificate operations ───────────────────────────────────────────────────

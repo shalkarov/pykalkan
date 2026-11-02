@@ -317,7 +317,7 @@ class LibHandle:
         parent_sign_node = ct.c_char_p("".encode())
         parent_namespace = ct.c_char_p("".encode())
 
-        err_code = self.handle.KC_SignXML(
+        err_code = self.handle.SignXML(
             self._alias,
             flags,
             in_xml,
@@ -328,7 +328,7 @@ class LibHandle:
             parent_sign_node,
             parent_namespace,
         )
-        self.__handle_error(err_code, "KC_SignXML")
+        self.__handle_error(err_code, "SignXML")
         return out_xml.value
 
     def verify_xml(self, signed_xml: bytes, flags: t.Iterable[SignatureFlag]) -> dict[str, bytes]:
@@ -337,7 +337,7 @@ class LibHandle:
 
         :param signed_xml: подписанный XML в байтах;
         :param flags: список флагов;
-        :return: dict с ключами 'Info' и 'Cert'.
+        :return: dict с ключом 'Info'.
         """
         flags = ct.c_int(sum([flag for flag in flags]))
 
@@ -348,7 +348,7 @@ class LibHandle:
         out_xml = ct.create_string_buffer(out_len)
         out_xml_len = ct.pointer(ct.c_int(out_len))
 
-        err_code = self.handle.KC_VerifyXML(
+        err_code = self.handle.VerifyXML(
             self._alias,
             flags,
             in_xml,
@@ -358,7 +358,6 @@ class LibHandle:
         )
         result = {
             "Info": out_xml.value,
-            "Cert": b"",
         }
-        self.__handle_error(err_code, "KC_VerifyXML", result.get("Info"))
+        self.__handle_error(err_code, "VerifyXML", result.get("Info"))
         return result
